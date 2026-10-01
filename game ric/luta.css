@@ -1,0 +1,1426 @@
+/* --- RESET & BASICS --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    user-select: none;
+}
+
+body {
+    background-color: #050508;
+    color: #ffffff;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* --- UTILITIES --- */
+.text1 {
+    color: #00a2ff;
+    text-shadow: 0 0 8px rgba(0, 162, 255, 0.6);
+}
+
+/* --- LAYOUT STRUCTURE --- */
+.container {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Esconde o menu inicial automaticamente quando a arena é ligada pelo JS */
+.container:has(#arena[style*="display:"]) .topo,
+.container:has(#arena[style*="display:"]) .meio {
+    display: none !important;
+}
+
+.topo {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    flex-shrink: 0;
+}
+
+.meio {
+    flex: 1; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -60px; /* Compensa o tamanho do título para centralizar o menu */
+}
+
+.header {
+    display: flex;
+    gap: 30px; /* Espaço ideal entre os botões de modo */
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- COMPONENTES DA INTERFACE (BOTÕES) --- */
+.modo {
+    padding: 18px 36px; /* Botões de modo maiores e imersivos */
+    font-size: 18px;
+    min-width: 260px; /* Mantém os dois botões de modo com o mesmo tamanho */
+    background: #111116;
+    color: #ffffff;
+    border: 2px solid #00a2ff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 15px rgba(0, 162, 255, 0.15);
+}
+
+/* --- SELEÇÃO DE PERSONAGENS (Fixado no centro da tela) --- */
+.seleçao {
+    display: none; /* Controlado pelo JS */
+    justify-content: center;
+    align-items: center;
+    gap: 30px; 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Alinhamento pixel por pixel no centro da tela */
+    width: 100%;
+    z-index: 5;
+}
+
+.perso {
+    list-style: none; /* Remove as bolinhas pretas da lista */
+    padding: 0;
+    margin: 0;
+}
+
+.perso button {
+    padding: 16px 32px;
+    font-size: 20px;
+    min-width: 160px;
+    font-family: inherit;
+    background: #111116;
+    color: #ffffff;
+    border: 2px solid #00a2ff;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 10px rgba(0, 162, 255, 0.2);
+}
+
+/* Efeito Hover Neon unificado para Menu de Modos e Escolha de Personagem */
+.modo:hover, .perso button:hover {
+    background: #00a2ff;
+    color: #000000;
+    box-shadow: 0 0 25px #00a2ff, 0 0 10px rgba(0, 162, 255, 0.5);
+    transform: translateY(-3px);
+}
+
+.modo:active, .perso button:active {
+    transform: translateY(1px);
+    border-color: #ffffff;
+    box-shadow: 0 0 10px #ffffff;
+}
+
+/* --- GAME ARENA --- */
+.arena {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    background: radial-gradient(circle, #101525 0%, #050508 100%);
+    z-index: 10;
+    overflow: hidden; /* Garante que nada saia da arena */
+}
+
+/* --- PERSONAGENS & CAMADAS --- */
+.personagem {
+    position: absolute;
+    bottom: 20%;
+    height: 45%;        /* Limita a altura máxima para não tampar a interface */
+    width: auto;         /* Ajusta a largura automaticamente baseando-se no desenho original */
+    object-fit: contain; /* Impede a imagem de se distorcer ou amassar */
+}
+
+.jogador {
+    left: 15%;
+     z-index: 15;/* Alterado para 10: Garante que fique NA FRENTE do Santuário (2) */
+}
+
+/* Container da CPU corrigido com z-index para ficar em cima da expansão */
+#cpuContainer {
+    position: absolute;
+    right: 15%;
+    width: auto;
+    height: 100%;
+    z-index: 6; /* ✅ acima do santuário */
+}
+
+.cpu {
+    position: absolute;
+    bottom: 20%;
+    height: 45%;
+    width: auto;
+    object-fit: contain;
+    right: 0%;
+    transform: scaleX(-1);
+    z-index: 6; /* ✅ mesmo nível do container */
+}
+
+/* --- UI / HUD (BARRA DE VIDA E ENERGIA) --- */
+.nomeP, .NomeCpu {
+    position: absolute;
+    top: 5%;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    z-index: 12;
+}
+
+.nomeP { left: 15%; }
+.NomeCpu { right: 0%; } /* Ajustado para alinhar com o container da CPU */
+
+.vidaP, .energiaP {
+    width: 25%;
+    height: 24px;
+    background-color: rgba(255, 255, 255, 0.1); 
+    position: absolute;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    z-index: 12;
+}
+
+.vidaP { top: 10%; left: 15%; }
+.energiaP { top: 15%; left: 15%; } 
+
+.cpuVida { left: auto; right: 0%; top: 10%; width: 25vw; }
+.cpuEnergia { left: auto; right: 0%; top: 15%; width: 25vw; } 
+
+.vidaAtual {
+    height: 100%;
+    width: 100%; 
+    background: linear-gradient(to right, #ff3333, #ff6666);
+    box-shadow: 0 0 8px #ff3333;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.energiaAtual {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to right, #007bff, #00d4ff);
+    box-shadow: 0 0 8px #00d4ff;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Textos centrais das barras */
+#vidaTexto, #vidaTextoCPU, #energiaTexto, #energiaTextoCPU {
+    position: absolute;
+    top: 0;                  
+    left: 0;                 
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff !important; 
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,1), -1px -1px 2px rgba(0,0,0,1); 
+    z-index: 15;             
+    pointer-events: none;
+}
+
+#vidaTexto small, #vidaTextoCPU small, #energiaTexto small, #energiaTextoCPU small {
+    font-size: 9px;         
+    opacity: 0.8;
+    margin-right: 8px;      
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#texto {
+    position: absolute;
+    top: 25%;
+    width: 100%;
+    text-align: center;
+    font-size: 48px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(255,0,0,0.8), 2px 2px 10px #000;
+    z-index: 999999 !important; /* Forçado acima de tudo */
+    pointer-events: none;
+}
+
+/* --- SKILLS SYSTEM --- */
+.skills {
+    position: absolute;
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    z-index: 100;
+}
+
+.skill-box {
+    width: 130px;
+    padding: 12px;
+    background: rgba(17, 17, 22, 0.9);
+    border: 2px solid #00a2ff;
+    border-radius: 8px;
+    color: #ffffff;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+}
+
+.skill-box:hover {
+    background: #00a2ff;
+    color: #000000;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 162, 255, 0.4);
+}
+
+.skill-box h3 {
+    margin: 0;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.skill-box p {
+    margin-top: 4px;
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+/* --- MINIGAME & FX --- */
+.minigame {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 5, 8, 0.95);
+    display: none;
+    z-index: 999;
+}
+
+.bolinha {
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    background: #111;
+    border-radius: 50%;
+    border: 3px solid #00a2ff;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.2s;
+    box-shadow: 0 0 10px #00a2ff;
+}
+
+.bolinha:hover {
+    transform: scale(1.2);
+    background: #00a2ff;
+    box-shadow: 0 0 20px #00a2ff;
+}
+
+#contador {
+    color: #ffffff;
+    font-size: 96px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 15%;
+    text-shadow: 0 0 30px rgba(255,255,255,0.2);
+}
+
+.video-transform {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    z-index: 999;
+}
+
+#efeitos {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+      z-index: 300;
+}
+
+/* ==========================================================================
+   ⛩️ BACKGROUND EXPANSÃO: SANTUÁRIO MALÉVOLO (ATRÁS DOS BONECOS)
+   ========================================================================== */
+.santuario-fundo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 2; /* Acima do fundo preto básico, abaixo do Sukuna (5) */
+    animation: tremerSantuario 0.3s infinite;
+}
+
+@keyframes tremerSantuario {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(1px, -1px); }
+    50% { transform: translate(-1px, 1px); }
+    75% { transform: translate(1px, 1px); }
+    100% { transform: translate(0, 0); }
+}
+
+/* ==========================================================================
+   ⚔️ TEMPESTADE DE CORTES NA TELA (NA FRENTE DOS BONECOS)
+   ========================================================================== */
+.tempestade-cortes{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:20;
+    overflow:hidden;
+}
+
+.linha-corte-tela{
+    position:absolute;
+    height:4px;
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            white,
+            #ff4444,
+            white,
+            transparent
+        );
+
+    box-shadow:
+        0 0 8px white,
+        0 0 15px #ff4444;
+
+    animation:corteTela 0.35s ease-out forwards;
+}
+
+@keyframes corteTela{
+    0%{
+        opacity:0;
+        transform:translate(-50%,-50%) scaleX(0);
+    }
+
+    20%{
+        opacity:1;
+    }
+
+    100%{
+        opacity:0;
+        transform:translate(-50%,-50%) scaleX(1.2);
+    }
+}
+
+/* --- ANIMATIONS (COMBAT) --- */
+.corte {
+    width: 600px;
+    height: 18px; 
+    position: absolute;
+    z-index: 50;
+    transform: translateY(-50%);
+    animation: corteAnim 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, #000000 20%, #111111 50%, #000000 80%, rgba(0, 162, 255, 0.4) 100%);
+    clip-path: polygon(0% 50%, 8% 0%, 92% 0%, 100% 50%, 92% 100%, 8% 100%);
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 12px rgba(0, 212, 255, 0.3));
+}
+
+@keyframes corteAnim {
+    0% { transform: translateX(-200px) translateY(-50%) scaleX(0.4) scaleY(0.7); opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { transform: translateX(800px) translateY(-50%) scaleX(1.3) scaleY(1); opacity: 0; }
+}
+
+.hit { animation: hitFlash 0.4s ease-in-out; }
+
+@keyframes hitFlash {
+    0%   { transform: translateX(0); filter: brightness(1); }
+    15%  { transform: translateX(-8px); filter: brightness(4) sepia(1) hue-rotate(-50deg); }
+    35%  { transform: translateX(6px); }
+    55%  { transform: translateX(-4px); }
+    75%  { transform: translateX(2px); }
+    100% { transform: translateX(0); filter: brightness(1); }
+}
+
+/* --- ANIMAÇÕES DO CLEAVE --- */
+.avanco-cleave-jogador { animation: avancarAtaqueJogador 0.5s ease-in-out forwards; }
+.avanco-cleave-cpu { animation: avancarAtaqueCPU 0.5s ease-in-out forwards; }
+
+.corte-cleave {
+    position: absolute;
+    width: 250px; 
+    height: 5px; 
+    z-index: 120;
+    pointer-events: none;
+    transform-origin: center;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, #000000 25%, #111111 50%, #000000 75%, rgba(0, 214, 255, 0.5) 100%);
+    clip-path: polygon(0% 50%, 10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%);
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 10px rgba(0, 212, 255, 0.3));
+    animation: cleavePrismaAnim 0.15s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes cleavePrismaAnim {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes avancarAtaqueJogador {
+    0% { left: 15%; }
+    40% { left: 60%; filter: brightness(1.5); }
+    70% { left: 60%; }
+    100% { left: 15%; }
+}
+
+@keyframes avancarAtaqueCPU {
+    0% { right: 15%; }
+    40% { right: 60%; filter: brightness(1.5); }
+    70% { right: 60%; }
+    100% { right: 15%; }
+}
+
+/* --- ANIMAÇÕES DO FUGA --- */
+.fuga-gif-conjuracao {
+    position: absolute;
+    width: 400px;       
+    height: 400px;
+    z-index: 200;       
+    pointer-events: none;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: translate(-50%, -50%); 
+}
+
+.prisma-fuga {
+    position: absolute;
+    width: 420px; 
+    height: 46px; 
+    z-index: 150;
+    pointer-events: none;
+    opacity: 0;
+    filter: drop-shadow(0 0 15px #ff6a00) drop-shadow(0 0 8px #ff2a00) brightness(1.2);
+    transform: translateY(-50%); 
+}
+
+.prisma-fuga:not(.cpu-fuga-projeto) {
+    background: linear-gradient(90deg, rgba(255, 42, 0, 0) 0%, #ff2a00 30%, #ffea00 70%, #ffffff 100%);
+    clip-path: polygon(0% 25%, 65% 25%, 60% 0%, 100% 50%, 60% 100%, 65% 75%, 0% 75%);
+}
+
+.prisma-fuga.cpu-fuga-projeto {
+    background: linear-gradient(-90deg, rgba(255, 42, 0, 0) 0%, #ff2a00 30%, #ffea00 70%, #ffffff 100%) !important;
+    clip-path: polygon(100% 25%, 35% 25%, 40% 0%, 0% 50%, 40% 100%, 35% 75%, 100% 75%) !important;
+}
+
+.prisma-fuga.disparado { animation: surgirFlechaSuave 0.1s ease-out forwards; }
+
+.pilar-fuga {
+    position: absolute;
+    width: 180px;              
+    height: 1000px;            
+    z-index: 160;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(255, 42, 0, 0.4) 0%, #ff2a00 15%, #ff6a00 30%, #ff6a00 50%, #ff6a00 70%, #ff2a00 85%, rgba(255, 42, 0, 0.4) 100%);
+    clip-path: inset(0% 0% 0% 0%); 
+    filter: brightness(1.5) drop-shadow(0 0 40px #ff2a00);
+    transform: translate(-50%, -50%) scaleY(0);
+    transform-origin: center;
+    animation: erguerCilindro 0.8s cubic-bezier(0.1, 0.9, 0.2, 1) forwards, vibracaoCilindro 0.05s infinite;
+}
+
+.pilar-fuga::before {
+    content: '';
+    position: absolute;
+    left: 45%;
+    width: 10%;
+    height: 100%;
+    background: white;
+    filter: blur(10px);
+    opacity: 0.8;
+}
+
+@keyframes surgirFlechaSuave {
+    0% { opacity: 0; transform: translateY(-50%) scaleX(0.5); }
+    100% { opacity: 1; transform: translateY(-50%) scaleX(1.2); }
+}
+
+@keyframes erguerCilindro {
+    0% { transform: translate(-50%, -50%) scaleY(0) scaleX(0.1); filter: brightness(10) blur(5px); opacity: 0; }
+    10% { opacity: 1; filter: brightness(5) blur(2px); transform: translate(-50%, -50%) scaleY(1.2) scaleX(1.1); }
+    20% { transform: translate(-50%, -50%) scaleY(1) scaleX(1); filter: brightness(1.5) blur(0px); }
+    80% { opacity: 1; transform: translate(-50%, -50%) scaleY(1) scaleX(1); }
+    100% { transform: translate(-50%, -50%) scaleY(1) scaleX(0); opacity: 0; }
+}
+
+@keyframes vibracaoCilindro {
+    0% { transform: translate(-50.5%, -50%); }
+    100% { transform: translate(-49.5%, -50%); }
+}
+
+.receptor-dominio {
+    position: absolute;
+    bottom: 15px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    font-size: 20px;
+    font-weight: bold;
+    transition: all 0.1s ease;
+    box-sizing: border-box;
+}
+
+#receptor-ArrowUp    { border-color: #ff3b30; color: #ff3b30; }
+#receptor-ArrowRight { border-color: #007aff; color: #007aff; }
+#receptor-ArrowDown  { border-color: #4cd964; color: #4cd964; }
+#receptor-ArrowLeft  { border-color: #ffcc00; color: #ffcc00; }
+
+.receptor-dominio.ativo {
+    transform: scale(1.1);
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 0 15px currentColor;
+}
+
+.nota-dominio {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+/* cor por coluna */
+.nota-dominio[data-tecla="ArrowUp"]    { background: radial-gradient(circle, #ff6b6b, #ff3b30); border: 2px solid #fff; box-shadow: 0 0 12px #ff3b30; }
+.nota-dominio[data-tecla="ArrowRight"] { background: radial-gradient(circle, #4dabf7, #007aff); border: 2px solid #fff; box-shadow: 0 0 12px #007aff; }
+.nota-dominio[data-tecla="ArrowDown"]  { background: radial-gradient(circle, #69db7c, #4cd964); border: 2px solid #fff; box-shadow: 0 0 12px #4cd964; }
+.nota-dominio[data-tecla="ArrowLeft"]  { background: radial-gradient(circle, #ffd43b, #ffcc00); border: 2px solid #fff; box-shadow: 0 0 12px #ffcc00; }
+
+/* linha guia na zona de acerto */
+#pista-dominio::after {
+    content: '';
+    position: absolute;
+    bottom: 65px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.15);
+    pointer-events: none;
+}
+@keyframes surgirSuave {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.linha-corte-tela {
+    position: absolute;
+    height: 3px; /* Um pouco mais espesso para parecer com o Cleave */
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 20%, rgba(0,162,255,1) 50%, rgba(255,255,255,1) 80%, rgba(255,255,255,0) 100%);
+    box-shadow: 0 0 12px rgba(0, 162, 255, 0.8), 0 0 4px #ffffff;
+    opacity: 0;
+    transform-origin: center;
+    animation: flashCorteTela 0.15s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes flashCorteTela {
+    0% { opacity: 0; transform: translate(-50%, -50%) scaleX(0.1); }
+    35% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scaleX(1.4); }
+}
+.transformaP {
+    width: 25%;
+    height: 24px;
+    background-color: rgba(255, 255, 255, 0.1);
+    position: absolute;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    z-index: 12;
+    top: 20%;
+    left: 15%;
+}
+
+.transformaAtual {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #7b00ff, #c77dff);
+    box-shadow: 0 0 8px #c77dff;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#transformTexto {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff !important;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,1);
+    z-index: 15;
+    pointer-events: none;
+}
+
+#transformTexto small {
+    font-size: 9px;
+    opacity: 0.8;
+    margin-right: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.minigamePossessao{
+    position: fixed;
+    inset: 0;
+    background: white;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-family: Arial;
+    z-index: 9999;
+}
+
+.uiTop{
+    position: absolute;
+    top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 40px;
+    font-size: 20px;
+}
+
+.barraContainer{
+    width: 70%;
+    height: 40px;
+    position: relative;
+}
+
+.barraBase{
+    width: 100%;
+    height: 20px;
+    background: #ddd;
+    position: relative;
+    overflow: hidden;
+}
+
+#areaVerde{
+    position: absolute;
+    height: 100%;
+    width: 120px;
+    background: rgba(0,255,0,0.5);
+    left: 0;
+}
+
+#linhaJogador{
+    position: absolute;
+    width: 4px;
+    height: 40px;
+    background: black;
+    top: -10px;
+    left: 0;
+}
+
+#frasesContainer{
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.frase{
+    position: absolute;
+    font-size: 18px;
+    opacity: 0.4;
+    animation: sumir 3s linear forwards;
+}
+
+@keyframes sumir{
+    0%{opacity:0.6;}
+    100%{opacity:0;}
+}
+
+#resultadoTexto{
+    position: absolute;
+    bottom: 80px;
+    font-size: 28px;
+    font-weight: bold;
+}
+.roda-mahoraga {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: url("img/roda.png") no-repeat center/contain;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    opacity: 0.9;
+}
+
+.roda-mahoraga.girando {
+    animation: spin 0.6s linear;
+}
+
+@keyframes spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+.escolha-mahoraga{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.8);
+
+    display: none;
+
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    z-index: 9999;
+}
+/* --- SISTEMA CINEMÁTICO: CUTSCENES E EFEITOS --- */
+#cutscene-container {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: black;
+    z-index: 90000; /* Abaixo do texto (999999) */
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.cutscene-media {
+    max-width: 100%; max-height: 100%; object-fit: cover;
+}
+
+/* Textos de Diálogo Dinâmico */
+.dialogo-flutuante {
+    position: fixed; /* Fixed garante que sobreponha a arena */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 999999 !important; /* Forçado acima das cutscenes */
+    opacity: 0;
+    text-shadow: 2px 2px 5px black, 0 0 15px currentColor;
+    animation: fadeInOutDialogo 3s ease forwards;
+    pointer-events: none;
+}
+.dialogo-sukuna { color: #ff003c; }
+.dialogo-megumi { color: #0088ff; }
+
+@keyframes fadeInOutDialogo {
+    0% { opacity: 0; transform: translateY(20px) scale(0.9); }
+    15% { opacity: 1; transform: translateY(0) scale(1); }
+    85% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-20px) scale(1.1); }
+}
+
+/* Efeitos Visuais */
+.flash-tela {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: white; z-index: 9998; opacity: 1;
+    pointer-events: none; transition: opacity 1s ease-out;
+}
+.shake-leve { animation: shake 0.2s 2; }
+.shake-forte { animation: shake 0.1s 5; }
+.shake-epico { animation: shake 0.05s 15; }
+
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    25% { transform: translate(-3px, 0px) rotate(-1deg); }
+    50% { transform: translate(2px, -2px) rotate(1deg); }
+    75% { transform: translate(-1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -1px) rotate(-1deg); }
+}
+
+/* Títulos Épicos */
+.titulo-epico {
+    position: absolute;
+    color: white;
+    font-size: 50px;
+    text-align: center;
+    text-shadow: 0 0 20px red, 0 0 40px darkred;
+    opacity: 0;
+    transform: scale(0.5);
+    animation: tituloAparece 4s forwards cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@keyframes tituloAparece {
+    0% { opacity: 0; transform: scale(0.5) translateY(50px); letter-spacing: normal; filter: blur(10px); }
+    20% { opacity: 1; transform: scale(1) translateY(0); letter-spacing: 5px; filter: blur(0px); }
+    80% { opacity: 1; transform: scale(1.1) translateY(0); letter-spacing: 8px; filter: blur(0px); }
+    100% { opacity: 0; transform: scale(1.5) translateY(-50px); filter: blur(20px); }
+}
+
+/* Minigame 2: Selo Heian */
+#minigame-selos {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    display: none; justify-content: center; align-items: center; 
+    background: rgba(0,0,0,0.85); z-index: 80000; overflow: hidden;
+}
+
+/* =========================================================
+   NOVO VISUAL: SELO RETANGULAR HEIAN
+========================================================= */
+.selo-heian-retangular {
+    position: relative;
+    width: 280px;
+    height: 550px;
+    background: linear-gradient(180deg, #1a0505 0%, #3a0000 50%, #1a0505 100%);
+    border: 8px solid #5a0000;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.4), inset 0 0 30px rgba(0,0,0,0.8);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Impede as rachaduras de vazarem do selo */
+    transition: all 0.2s ease;
+}
+
+/* O Texto Aprisionado */
+.texto-selo {
+    font-family: 'Courier New', Courier, serif;
+    font-size: 85px;
+    font-weight: 900;
+    color: #ff3333;
+    text-shadow: 0 0 20px red, 3px 3px 0px black;
+    writing-mode: vertical-rl; /* Deixa o texto de pé */
+    text-transform: uppercase;
+    letter-spacing: 30px;
+    z-index: 2;
+    pointer-events: none; /* Para não bloquear o clique nas rachaduras */
+}
+
+/* Camada onde as rachaduras permanentes ficam carimbadas */
+.camada-dano {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* =========================================================
+   RACHADURAS EM IMAGEM
+========================================================= */
+.rachadura-clicavel {
+    position: absolute;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.1s;
+    filter: drop-shadow(0 0 8px red); /* Brilho natural das rachaduras */
+}
+.rachadura-clicavel:active { transform: scale(1.1); }
+
+/* Modificador de cor para a rachadura falsa (roxa/azulada) */
+.rachadura-falsa-img {
+    filter: drop-shadow(0 0 10px #5500ff) hue-rotate(240deg) brightness(1.5);
+}
+
+/* =========================================================
+   ANIMAÇÕES DE DESTRUIÇÃO
+========================================================= */
+.selo-supremo-ativo-retangular {
+    border-color: #ff0000;
+    box-shadow: 0 0 80px #ff0000, inset 0 0 50px #ff0000;
+    animation: pulsarSupremoRetangular 0.5s infinite alternate;
+}
+
+@keyframes pulsarSupremoRetangular {
+    0% { transform: scale(1); filter: brightness(1); }
+    100% { transform: scale(1.05); filter: brightness(1.4); }
+}
+
+.fragmento-selo {
+    position: absolute;
+    background: #3a0000;
+    border: 2px solid #5a0000;
+    animation: explodirFragmento 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes explodirFragmento {
+    0% { opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0); opacity: 0; }
+}
+/* =========================================================
+   NOVO: BADGES DE STATUS (atordoado, cego, esquiva bônus, guarda quebrada...)
+========================================================= */
+.status-badges {
+    position: absolute;
+    top: calc(15% + 32px);
+    left: 15%;
+    display: flex;
+    gap: 6px;
+    z-index: 13;
+}
+.status-badges-cpu {
+    left: auto;
+    right: 0%;
+}
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.3);
+    font-size: 14px;
+    cursor: default;
+    animation: badgePulse 1.2s ease-in-out infinite;
+}
+@keyframes badgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+}
+
+/* =========================================================
+   NOVO: TEXTOS FLUTUANTES (esquiva, cura, recuo, roubo de energia...)
+========================================================= */
+.texto-flutuante {
+    position: absolute;
+    transform: translate(-50%, 0);
+    font-weight: 900;
+    font-size: 18px;
+    text-shadow: 0 0 10px currentColor, 2px 2px 4px black;
+    z-index: 250;
+    pointer-events: none;
+    animation: flutuarTexto 0.9s ease-out forwards;
+    white-space: nowrap;
+}
+@keyframes flutuarTexto {
+    0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
+    20% { opacity: 1; transform: translate(-50%, -10px) scale(1.05); }
+    100% { opacity: 0; transform: translate(-50%, -60px) scale(1); }
+}
+
+.esquivou {
+    animation: esquivaFlicker 0.4s ease-in-out;
+}
+@keyframes esquivaFlicker {
+    0%   { transform: translateX(0); opacity: 1; }
+    30%  { transform: translateX(-16px); opacity: 0.35; }
+    60%  { transform: translateX(16px); opacity: 0.35; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+/* =========================================================
+   NOVO: TOOLTIP DE GOLPE (ícone "i" em cada skill-box)
+========================================================= */
+.skill-box {
+    position: relative;
+}
+.skill-info {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid #00a2ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-style: normal;
+    color: #00a2ff;
+    background: rgba(0,0,0,0.5);
+    cursor: help;
+    z-index: 5;
+}
+.skill-info:hover {
+    background: #00a2ff;
+    color: #000;
+}
+.skill-tooltip {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    width: 190px;
+    padding: 10px 12px;
+    background: #0b0b10;
+    border: 1px solid #00a2ff;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: normal;
+    line-height: 1.4;
+    color: #e6f7ff;
+    text-align: left;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    z-index: 50;
+}
+.skill-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #00a2ff;
+}
+.skill-box:hover .skill-tooltip,
+.skill-box.tooltip-ativa .skill-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* =========================================================
+   NOVO: AVISO "MODO EM BREVE"
+========================================================= */
+.badge-em-breve {
+    display: block;
+    font-size: 9px;
+    font-weight: normal;
+    letter-spacing: 1px;
+    opacity: 0.65;
+    margin-top: 4px;
+    text-transform: uppercase;
+}
+.aviso-modo {
+    position: absolute;
+    top: calc(100% + 18px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    width: max-content;
+    max-width: 90vw;
+    padding: 10px 18px;
+    background: rgba(17,17,22,0.95);
+    border: 1px solid #00a2ff;
+    border-radius: 6px;
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 20;
+}
+.aviso-modo.aviso-modo-visivel {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* =========================================================
+   NOVO: TELA DE SELEÇÃO DE PERSONAGEM (cards dinâmicos)
+========================================================= */
+.seleçao {
+    flex-direction: column;
+    gap: 22px;
+    max-height: 92vh;
+    padding: 0 20px;
+}
+.selecao-subtitulo {
+    color: #9fb3c8;
+    font-size: 14px;
+    text-align: center;
+    max-width: 560px;
+}
+.selecao-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(210px, 260px));
+    gap: 22px;
+    justify-content: center;
+    max-height: 78vh;
+    overflow-y: auto;
+    padding: 6px;
+}
+@media (max-width: 820px) {
+    .selecao-grid {
+        grid-template-columns: minmax(210px, 320px);
+    }
+}
+
+.character-card {
+    --cor-tema: #00a2ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: #111116;
+    border: 2px solid var(--cor-tema);
+    border-radius: 12px;
+    padding: 18px 16px 20px;
+    color: #ffffff;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 14px var(--cor-tema);
+}
+.character-card:hover,
+.character-card:focus-visible {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.55), 0 0 26px var(--cor-tema);
+    outline: none;
+}
+.character-card:active {
+    transform: translateY(-2px);
+}
+.character-card-topo {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 6px;
+}
+.character-card-img {
+    height: 140px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.6));
+}
+.character-card-tag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid var(--cor-tema);
+    color: var(--cor-tema);
+    border-radius: 20px;
+    padding: 3px 10px;
+}
+.character-card-nome {
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    color: var(--cor-tema);
+}
+.character-card-desc {
+    font-size: 12.5px;
+    color: #cfd8e3;
+    line-height: 1.4;
+    min-height: 52px;
+    margin-bottom: 10px;
+}
+.character-card-stats {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+.character-card-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 4px 14px;
+}
+.character-card-stat span {
+    font-size: 9px;
+    opacity: 0.7;
+    letter-spacing: 0.5px;
+}
+.character-card-stat strong {
+    font-size: 15px;
+}
+.character-card-assinatura {
+    font-size: 11.5px;
+    color: #e6f0ff;
+    margin-bottom: 8px;
+}
+.character-card-passiva {
+    font-size: 11px;
+    color: #ffd77a;
+    line-height: 1.4;
+    border-top: 1px dashed rgba(255,255,255,0.15);
+    padding-top: 8px;
+    margin-top: auto;
+}
+.character-card-passiva-vazia {
+    color: #8a93a0;
+    font-style: italic;
+}
+/* =========================================================
+   NOVA ESQUIVA (Muito mais visível com efeito "Ghost")
+========================================================= */
+.esquivou {
+    animation: esquivaFlicker 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+@keyframes esquivaFlicker {
+    0%   { transform: translateX(0) scale(1); opacity: 1; }
+    20%  { transform: translateX(-50px) scale(0.9); opacity: 0.2; filter: blur(4px); }
+    50%  { transform: translateX(50px) scale(0.9); opacity: 0.2; filter: blur(4px); }
+    80%  { transform: translateX(-15px) scale(1); opacity: 0.8; filter: blur(1px); }
+    100% { transform: translateX(0) scale(1); opacity: 1; filter: blur(0); }
+}
+
+/* =========================================================
+   MENU DO MAHORAGA (Estilo Jujutsu/Expansão)
+========================================================= */
+.escolha-mahoraga-modal {
+    position: fixed; inset: 0;
+    background: rgba(5, 5, 10, 0.95);
+    display: none; justify-content: center; align-items: center; flex-direction: column;
+    z-index: 99999; backdrop-filter: blur(10px);
+}
+.titulo-mahoraga {
+    color: #ff0055; font-size: 32px; letter-spacing: 5px; text-transform: uppercase;
+    text-shadow: 0 0 20px #ff0055; margin-bottom: 40px; text-align: center;
+}
+.cards-mahoraga-container {
+    display: flex; gap: 30px;
+}
+.card-mahoraga {
+    width: 250px; background: #111116; border: 2px solid #333; border-radius: 12px;
+    padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0,0,0,0.8);
+}
+.card-mahoraga img {
+    width: 120px; height: 120px; object-fit: contain; margin-bottom: 15px;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); transition: all 0.3s;
+}
+.card-mahoraga h3 { color: #fff; font-size: 18px; margin-bottom: 10px; }
+.card-mahoraga p { color: #aaa; font-size: 12px; line-height: 1.4; }
+.card-mahoraga:hover {
+    border-color: #ff0055; transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(255, 0, 85, 0.4);
+}
+.card-mahoraga:hover img { transform: scale(1.1); filter: drop-shadow(0 0 15px #ff0055); }
+
+/* =========================================================
+   EFEITOS CINEMÁTICOS DO MIDORIYA
+========================================================= */
+.deku-100-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    object-fit: cover; z-index: 800; opacity: 0.8; mix-blend-mode: screen;
+    pointer-events: none;
+}
+.blackwhip-overlay {
+    position: absolute; width: 400px; height: 400px;
+    transform: translate(-50%, -50%); z-index: 150; pointer-events: none;
+}
+.dekustrike-ghost {
+    position: absolute; filter: brightness(2) blur(2px) opacity(0.5);
+    z-index: 10; pointer-events: none; transition: opacity 0.3s;
+}
+/* =========================================================
+   NOVOS EFEITOS MIDORIYA E STATUS DE COMBATE
+========================================================= */
+/* Inimigo Caído (Stun) */
+.caido {
+    transform: rotate(-90deg) translateY(50px) !important;
+    filter: grayscale(0.5);
+    transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+/* Habilidades em Cooldown */
+.skill-em-cooldown {
+    opacity: 0.3 !important;
+    pointer-events: none !important;
+    filter: grayscale(1);
+    border-color: #555 !important;
+}
+
+/* Projéteis de Vento (Detroit e Delaware) */
+.vento-projetil {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(0, 255, 170, 0.6) 40%, transparent 70%);
+    border-radius: 50%;
+    z-index: 100;
+    pointer-events: none;
+    filter: blur(2px);
+    animation: disparoVento 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes disparoVento {
+    0% { transform: scale(0.2) translateX(0) rotate(0deg); opacity: 0.8; }
+    100% { transform: scale(2) translateX(300px) rotate(360deg); opacity: 0; }
+}
+
+/* Cortina de Fumaça Dark Deku */
+.smoke-overlay {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(128, 0, 128, 0.9) 0%, rgba(75, 0, 130, 0.7) 40%, transparent 80%);
+    border-radius: 50%;
+    z-index: 100;
+    pointer-events: none;
+    filter: blur(20px);
+    animation: smokeExpand 3s ease-out forwards;
+}
+
+@keyframes smokeExpand {
+    0% { transform: scale(0.1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.8; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+/* Garras Sombrias (Berserk) */
+.garra-projetil {
+    position: absolute;
+    width: 250px;
+    height: 60px;
+    background: linear-gradient(90deg, transparent, #000, #1a0033, transparent);
+    clip-path: polygon(0% 50%, 20% 0%, 100% 40%, 100% 60%, 20% 100%);
+    z-index: 110;
+    filter: drop-shadow(0 0 10px purple);
+    animation: garraVoo 0.3s ease-in forwards;
+}
+
+@keyframes garraVoo {
+    0% { transform: translateX(-100px) scaleX(0.5); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(500px) scaleX(1.5); opacity: 0; }
+}
+
+/* Efeito Faíscas passivas atrás do personagem */
+.spark-overlay {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    z-index: 0; /* Fica atrás do personagem que está no z-index 15 */
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: screen;
+}

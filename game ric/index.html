@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>teste transformação</title>
+    <link rel="stylesheet" href="css.css">
+</head>
+<body>
+
+
+    <div class="container">
+        <div class="card-goku" id="Goku">
+    <img src="img/goku.png" alt="" class="base" id="baseid">
+    <img src="img/goku_carregando_ki-removebg-preview.png" alt="" srcset="" class="carregando" id="carregandoid">
+    <img src="img/ki 3.gif" alt="" srcset="" class="ki" id="kiid">
+    <img src="img/ssj-removebg-preview.png" alt="" class="ssj" id="ssj">
+    <h1 class="frasessj" id="textossj">EU SOU O SUPER SAIYAJIN, SON GOKU!</h1>
+    </div>
+
+    <div class="card-midoriya" id="midoriya">
+        <img src="img/midoriya.png" alt="" class="midoriya-base" id="midoriyabase">
+        <img src="img/full cown.png"  class="midoriacown" id="midoriyacown">
+        <img src="img/100_-removebg-preview.png" alt="" class="midoriya100" id="midoriya100">
+        <img src="https://static.wixstatic.com/media/f4859b_103590b7e5be4fd08155a18d78fd222d~mv2.gif" alt="" id="raios" class="raios">
+        <h1 class="frasemidoriya" id="midoriyatext"></h1>
+    </div>
+
+    <div class="sukuna-card" id="sukuna">
+        <img src="img/Sukuna Ryomen-Photoroom.png" alt="" id="sukunabase" class="sukunabase">
+        <img src="img/meguna.png" alt="" id="meguna" class="meguna">
+        <img src="https://i.pinimg.com/originals/ba/31/dc/ba31dc37d220e00b7fd2c3cb0fa1a0a6.gif" alt="" srcset="" id="megunatrans" class="megunatrans">
+        <img src="https://www.gifcen.com/wp-content/uploads/2024/05/sukuna-gif-6.gif" alt="" id="heiantrans" class="heiantrans">
+        <img src="img/heian.png" alt="" id="heian" class="heian">
+        <h1 class="sukunatext" id="sukunatext"></h1>
+    </div>
+
+    <button id="trans" class="bt"> Desperte seu poder</button>
+
+    <button class="personagens" id="exibir">escolha um personagem</button>
+        <ul class="oculto" id="lista">
+           <li> <button onclick="escolherpersonagem('goku')">Goku</button></li>
+           <li> <button onclick="escolherpersonagem('midoriya')">Midoriya</button></li>
+           <li> <button onclick="escolherpersonagem('sukuna')">Sukuna</button></li>
+           <li> <button onclick="escolherpersonagem('gojo')">Gojo</button></li>
+           <li> <button onclick="escolherpersonagem('ichigo')">Ichigo</button></li>
+           <li> <button onclick="escolherpersonagem('asta')">Asta</button></li>
+           <li> <button onclick="escolherpersonagem('naruto')">Naruto</button></li>
+        </ul>
+
+    </div>
+
+    <p id="contagem"></p>
+    <script src="js.js"></script>
+    
+</body>
+</html>

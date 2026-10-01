@@ -1,0 +1,367 @@
+/* =========================
+   CONFIGURAÇÃO GERAL
+   ========================= */
+
+body{
+    background-color: black;
+}
+
+.container{
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   height: 100vh;
+   flex-direction: column;
+   position: relative; 
+}
+
+#numero{
+    color: white;
+}
+
+
+/* =========================
+   PERSONAGEM - GOKU
+   ========================= */
+
+.base{
+    width: 200px;
+    height: 500px;
+    display: none;
+    pointer-events: none;
+}
+
+.carregando{
+    display: none;
+    height: 500px;
+    width: 500px;
+}
+
+.ki{
+    display: none;
+    position: absolute;
+    width: 1500px;  
+    height: 1000px;
+
+    top: 47%;
+    left: 52%;
+    transform: translate(-50%, -50%); 
+    
+    pointer-events: none;
+    z-index: -1; 
+    pointer-events: none;
+}
+
+.ssj{
+    width: 250px;
+    height: 600px;
+    display: none;
+    pointer-events: none;
+}
+
+.frasessj{
+    color: yellow;
+    animation: piscargoku 7s 1;
+    display: none;
+    pointer-events: none;
+}
+
+
+/* =========================
+   BOTÕES
+   ========================= */
+
+.bt{
+    position: absolute;
+    bottom: 20%;
+    left: 70%;
+    transform: translateX(-50%);
+    
+   border: 2px solid #00a2ff;
+   background: #111;
+    color: white;
+    padding: 10px 20px; 
+    
+    border-radius: 5px; 
+    cursor: pointer; 
+    z-index: 30;
+}
+.bt:hover{
+    background-color: #00a2ff;
+}
+.bt:active{
+    color: #111;
+     background-color: #00a2ff;
+}
+.personagens{
+    position: absolute;
+    bottom: 60%;
+    left: 30%;
+    transform: translateX(-50%);
+    
+    background: #111;
+    border: 2px solid #00a2ff;
+    color: white;
+    padding: 10px 20px; 
+   
+    border-radius: 5px; 
+    cursor: pointer; 
+    z-index: 40;
+}
+.personagens:hover{
+    background-color: #00a2ff;
+}
+.personagens:active{
+    color: #111;
+    background-color: #00a2ff;
+}
+
+
+/* =========================
+   LISTA DE PERSONAGENS
+   ========================= */
+
+.lista{
+    display: none;
+}
+
+
+.oculto{
+    display: none;
+    opacity: 0;
+    transform: translateY(-100px);
+    transition: all 0.5s ease;
+}
+
+.mostrar{
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    animation: ocultaremostrar 0.5s forwards;
+    display: flex;
+}
+
+#lista{
+    position: absolute;
+    bottom: 35%;
+    left: 36%;
+    transform: translateX(-50%);
+
+    list-style: none;
+    padding: 25px;
+    margin: 0px;
+
+    background: rgba(0,0,0,0.85);
+    border: 2px solid #007bff;
+    border-radius: 10px;
+
+    
+    flex-direction: column;
+    gap: 30px;
+
+    z-index: 20;
+}
+
+#lista button{
+    width: 160px;
+
+    background: #111;
+    color: white;
+    border: 2px solid #00a2ff;
+    
+    padding: 10px;
+    border-radius: 6px;
+
+    font-weight: bold;
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+#lista button:hover{
+    background-color: #00a2ff;
+    transform: scale(1.05);
+}
+#lista button:active{
+    background-color: #00a2ff;
+    color: #111;
+}
+
+
+/* =========================
+   PERSONAGEM - MIDORIYA
+   ========================= */
+
+.midoriya-base{
+    display: none;
+    pointer-events: none;
+}
+
+.card-midoriya{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.midoriacown{
+    position: relative;
+    width: 300px;
+    bottom: 0%;
+    height: 650px;
+    left: 0%;
+    display: none;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.midoriya100{
+    display: none;
+    z-index: 6;
+    width: 300px;
+    height: 500px;
+    pointer-events: none;
+}
+
+.frasemidoriya{
+    position: absolute;
+    color: #00FF00C0;
+    font-weight: bold;
+    font-size: 38px;
+    
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    z-index: 5;
+    display: none;
+    pointer-events: none;
+
+    background-image: url(https://i.pinimg.com/originals/90/89/b3/9089b3609b6595940092a50f59b027fa.gif);
+    background-clip: text;
+}
+
+.raios{
+    position: absolute;
+    display: none;
+    z-index: 1;
+    pointer-events: none;
+}
+
+
+/* =========================
+   PERSONAGEM - SUKUNA
+   ========================= */
+
+.sukunabase{
+    width: 400px;
+    height: 600px;
+    display: none;
+}
+
+.meguna{
+    width: 400px;
+    height: 600px;
+    display: none;
+}
+
+.megunatrans{
+    width: 100%;
+    height: 60%;
+    display: none;
+}
+
+.heiantrans{
+    width: 100%;
+    height: 70%;
+    display: none;
+}
+
+.heian{
+    background-image: url(https://usagif.com/wp-content/uploads/gifs/fire-51.gif);
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: none;
+}
+
+.sukunatext{
+    position: absolute;
+    color: #FF000080 ;
+    font-weight: bold;
+    font-size: 38px;
+    
+    top: 80%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    z-index: 5;
+    display: none;
+    pointer-events: none;
+    
+    width: 33ch;
+    margin: 100px 200px;
+    white-space: nowrap;
+    overflow: hidden;
+
+    background-image: url('https://i.pinimg.com/originals/6b/eb/8c/6beb8c491659f1c7087c1afe5fcd1070.gif');
+    background-clip: text;
+}
+
+
+/* =========================
+   ANIMAÇÕES
+   ========================= */
+
+@keyframes piscargoku{
+    0%{ color:white }
+    100%{ color: yellow }
+}
+
+@keyframes tremer{
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.tremor{
+    animation: tremer 0.1s infinite
+}
+
+@keyframes ocultaremostrar{
+    from{
+        opacity: 0;
+        transform: translateY(-20);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes flash{
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.flash{
+    animation: flash 1s 1;
+}
+
+.textosurgindo{
+   animation: typing 2s steps(50) 1;
+}
+
+@keyframes typing{
+    from{
+        width: 0ch;
+    }
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="luta.css">
+</head>
+<body>
+
+    <video id="videoTransform" class="video-transform" muted style="display:none;">
+        <source src="img/rafael.mp4" type="video/mp4">
+    </video>
+
+    <div id="minigame" class="minigame">
+        <h1 id="contador"></h1>
+    </div>
+    <div id="minigame-dominio" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:9999; flex-direction:column; justify-content:center; align-items:center;">
+    <h2 style="color:#ff0055; font-size:24px; text-transform:uppercase; letter-spacing:2px; margin-bottom:20px;">Concentre sua energia!</h2>
+    <div id="qte-feedback" style="font-size:22px; font-weight:bold; color:#00ffcc; height:30px; margin-bottom:15px;"></div>
+    <div id="pista-dominio" style="position:relative; width:420px; height:420px; background:rgba(15,15,25,0.95); border:2px solid #ff0055; border-radius:12px; overflow:hidden;">
+        <div id="notas-container" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></div>
+        
+        <div id="receptor-ArrowRight" class="receptor-dominio" style="left:307px;">➡️</div>
+        <div id="receptor-ArrowUp"    class="receptor-dominio" style="left:117px;">⬆️</div>
+        <div id="receptor-ArrowDown"  class="receptor-dominio" style="left:212px;">⬇️</div>
+        <div id="receptor-ArrowLeft"  class="receptor-dominio" style="left:22px;">⬅️</div>
+    </div>
+</div>
+    
+
+    <div class="container">
+
+        <div class="topo">
+            <h1 class="text1">escolha o estilo do game 1 vs 1 ou Player vs CPU</h1>
+        </div>
+
+        <div class="meio">
+            <div class="header">
+                <button class="modo" id="vs">modo 1 vs 1 <small class="badge-em-breve">em breve</small></button>
+                <button class="modo" id="btnCPU">modo Player vs CPU</button>
+            </div>
+            <div id="aviso-modo" class="aviso-modo">O modo 1 vs 1 local ainda está em desenvolvimento. Por enquanto, jogue contra a CPU! 🎮</div>
+        </div>
+        
+        <div class="arena" id="arena">
+            <div id="minigamePossessao" class="minigamePossessao">
+    <div class="uiTop">
+        <span id="possessaoTexto">0%</span>
+        <span id="timerTexto">20</span>
+    </div>
+
+    <div class="barraContainer">
+        <div class="barraBase">
+            <div id="areaVerde"></div>
+            <div id="linhaJogador"></div>
+        </div>
+    </div>
+
+    <div id="frasesContainer"></div>
+
+    <div id="resultadoTexto"></div>
+</div>
+            <p id="texto"></p>
+            
+            <div class="jogador" id="jogador">
+                <h1 class="nomeP" id="nomeP"></h1>
+                <img id="imgJogador" class="personagem jogador">
+                
+                <div class="vidaP">
+                    <div class="vidaAtual" id="vidaJogador"></div>
+                    <span id="vidaTexto"><small>VIDA</small> 100/100</span>
+                </div>
+                
+                <div class="energiaP">
+                    <div class="energiaAtual" id="energiaJogador"></div>
+                    <span id="energiaTexto"><small>ENERGIA</small> 100/100</span>
+                </div>
+
+                <div class="status-badges" id="statusBadgesJogador"></div>
+
+        <div class="transformaP" id="barraTransformContainer" style="display:none;">
+    <div class="transformaAtual" id="barraTransform"></div>
+    <span id="transformTexto"><small>TRANSFORM</small> 0/100</span>
+</div>  
+                <div id="escolhaMahoraga" class="escolha-mahoraga-modal">
+    <h2 class="titulo-mahoraga">A TÉCNICA DAS DEZ SOMBRAS</h2>
+    <div class="cards-mahoraga-container">
+        <div class="card-mahoraga" onclick="ativarOpcaoMahoraga('mahoraga')">
+            <img src="img/Mahoraga.png" alt="Mahoraga" onerror="this.style.display='none'">
+            <h3>GENERAL MAHORAGA</h3>
+            <p>Invoca o Shikigami para realizar um ataque massivo extra a cada turno.</p>
+        </div>
+        <div class="card-mahoraga" onclick="ativarOpcaoMahoraga('adaptacao')">
+            <img src="img/roda.png" alt="Roda de Adaptação" onerror="this.style.display='none'">
+            <h3>RODA DA ADAPTAÇÃO</h3>
+            <p>Ganha resistência progressiva (até 50%) contra ataques que o oponente repetir.</p>
+        </div>
+    </div>
+</div>
+                <div class="skills" id="skills"></div>
+            </div>
+
+            <div id="cpuContainer">
+                <h1 class="NomeCpu" id="nomecpu"></h1>
+                <img id="imgCPU" class="personagem cpu">
+                
+                <div class="vidaP cpuVida">
+                    <div class="vidaAtual" id="vidaCPU"></div>
+                    <span id="vidaTextoCPU"><small>VIDA</small> 100/100</span>
+                </div>
+                
+                <div class="energiaP cpuEnergia">
+                    <div class="energiaAtual" id="energiaCPU"></div>
+                    <span id="energiaTextoCPU"><small>ENERGIA</small> 100/100</span>
+                </div>
+
+                <div class="status-badges status-badges-cpu" id="statusBadgesCPU"></div>
+            </div>
+            
+            <div id="efeitos"></div>
+        </div>
+
+        <div class="seleçao" id="selecao">
+            <p class="selecao-subtitulo">Escolha seu lutador — passe o mouse (ou toque) no ℹ de cada golpe durante a luta para ver o que ele faz.</p>
+            <div class="selecao-grid" id="selecao-grid"></div>
+        </div>
+        
+    </div>
+
+    <script src="luta.js" defer></script>
+</body>
+</html>

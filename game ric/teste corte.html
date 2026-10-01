@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+          background-color: black;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    .corte {
+    width: 400px;
+    height: 15px;
+    background-color: white;
+    clip-path: polygon(0% 50%, 50% 0%, 100% 50%, 50% 100%);
+    
+    position: absolute;
+    top: 50%;
+   
+
+    transform: rotate(-15deg);
+    
+   
+}
+
+.corte::after {
+    content: "";
+    position: absolute;
+    inset: 1.5px;
+    background-color: black;
+    clip-path: polygon(0% 50%, 50% 0%, 100% 50%, 50% 100%);
+}
+
+@keyframes corteAnim {
+    0% {
+        left: -500px;
+        opacity: 0;
+    }
+    30% {
+        opacity: 1;
+    }
+    100% {
+        left: 120%;
+        opacity: 0;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="corte"></div>
+    
+</body>
+</html>
